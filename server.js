@@ -1,32 +1,35 @@
 import express from "express";
-import { spawn } from "child_process";
+import bodyParser from "body-parser";
+import cors from "cors";
+
+app.use(cors());
 
 const app = express();
-app.use(express.json()); // To parse incoming JSON requests
+const PORT = process.env.PORT || 3000;
 
-// POST endpoint for Supabase webhook
+// Middleware to parse JSON from the webhook
+app.use(bodyParser.json());
+
 app.post("/trigger-script", async (req, res) => {
   console.log("Received Supabase Webhook:", req.body);
 
-  // Run the Node.js script
-  const process = spawn("node", ["path/to/your-script.ts"]);
-
-  process.stdout.on("data", (data) => {
-    console.log(`Output: ${data}`);
-  });
-
-  process.stderr.on("data", (data) => {
-    console.error(`Error: ${data}`);
-  });
-
-  process.on("close", (code) => {
-    console.log(`Script exited with code ${code}`);
-  });
-
-  res.status(200).send("Node.js script triggered successfully.");
+  try {
+    // Trigger your TypeScript agent script here
+    const { exec } = await import("child_process");
+    exec("node chatbot.ts", (error, stdout, stderr) => {
+      if (error) {
+        console.error(`Error executing script: ${error.message}`);
+        return res.status(500).send("Error triggering script.");
+      }
+      console.log(`Script Output: ${stdout}`);
+      res.status(200).send("Script triggered successfully!");
+    });
+  } catch (error) {
+    console.error("Error handling webhook:", error);
+    res.status(500).send("Error processing webhook.");
+  }
 });
 
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () =>
-  console.log(`Server running on http://localhost:${PORT}`)
-);
+app.listen(PORT, () => {
+  console.log(`Server running at http://localhost:${PORT}`);
+});

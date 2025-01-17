@@ -4,7 +4,8 @@
   "description": "This repo will utilize the coinbase agentkit paired with Mesa's contract builder to generate secure wallets for users and deploy NFTs of a splits contract on ipfs.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
   },
   "keywords": [],
   "author": "",
@@ -15,7 +16,9 @@
     "@langchain/core": "^0.3.30",
     "@langchain/langgraph": "^0.2.40",
     "@langchain/openai": "^0.3.17",
+    "@types/express": "^5.0.0",
     "dotenv": "^16.4.7",
+    "express": "^4.21.2",
     "fs": "^0.0.1-security",
     "readline-sync": "^1.4.10"
   },
