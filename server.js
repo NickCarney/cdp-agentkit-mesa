@@ -1,35 +1,35 @@
-import express from "express";
-import bodyParser from "body-parser";
-import cors from "cors";
+const { createClient } = require("@supabase/supabase-js");
+// const { initializeAgent, runAutonomousMode } = require("./chatbot.ts");
 
-app.use(cors());
+console.log("Initializing Supabase client...");
 
-const app = express();
-const PORT = process.env.PORT || 3000;
+// Replace with your actual Supabase URL and API key
+const supabase = createClient(
+  process.env.SUPABASE_URL, // Supabase URL
+  process.env.SUPABASE_KEY // Supabase anon Key
+);
 
-// Middleware to parse JSON from the webhook
-app.use(bodyParser.json());
+// Subscribe to changes in the 'contracts' table
+const channel = supabase
+  .channel("schema-db-changes")
+  .on(
+    "postgres_changes",
+    {
+      event: "INSERT", // Listen for insert events
+      schema: "public", // Database schema (usually public)
+      table: "contracts", // Specify the 'contracts' table here
+    },
+    (payload) => {
+      console.log("New row added:", payload); // Log the payload
+      // Call chatbot logic or other functions here
+      // initializeAgent();
+    }
+  )
+  .subscribe((status) => {
+    console.log("Subscription status:", status); // Log subscription status
+  });
 
-app.post("/trigger-script", async (req, res) => {
-  console.log("Received Supabase Webhook:", req.body);
-
-  try {
-    // Trigger your TypeScript agent script here
-    const { exec } = await import("child_process");
-    exec("node chatbot.ts", (error, stdout, stderr) => {
-      if (error) {
-        console.error(`Error executing script: ${error.message}`);
-        return res.status(500).send("Error triggering script.");
-      }
-      console.log(`Script Output: ${stdout}`);
-      res.status(200).send("Script triggered successfully!");
-    });
-  } catch (error) {
-    console.error("Error handling webhook:", error);
-    res.status(500).send("Error processing webhook.");
-  }
-});
-
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
+// Optional: Handle disconnections and errors
+channel.on("error", (error) => {
+  console.error("Error in channel subscription:", error);
 });

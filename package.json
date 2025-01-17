@@ -16,11 +16,14 @@
     "@langchain/core": "^0.3.30",
     "@langchain/langgraph": "^0.2.40",
     "@langchain/openai": "^0.3.17",
+    "@supabase/supabase-js": "^2.47.16",
     "@types/express": "^5.0.0",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "fs": "^0.0.1-security",
-    "readline-sync": "^1.4.10"
+    "pg": "^8.13.1",
+    "readline-sync": "^1.4.10",
+    "supabase": "^2.6.8"
   },
   "devDependencies": {
     "ts-node": "^10.9.2",
