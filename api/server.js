@@ -1,5 +1,5 @@
 const { createClient } = require("@supabase/supabase-js");
-const { initializeAgent, runAutonomousMode } = require("./chatbot.js");
+const { initializeAgent, runAutonomousMode } = require("../chatbot.js");
 
 console.log("Initializing Supabase client...");
 
