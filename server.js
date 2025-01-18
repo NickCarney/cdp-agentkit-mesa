@@ -1,5 +1,5 @@
 const { createClient } = require("@supabase/supabase-js");
-const { initializeAgent, runAutonomousMode } = require("../chatbot.js");
+const { initializeAgent, runAutonomousMode } = require("./chatbot.js");
 
 console.log("Initializing Supabase client...");
 
@@ -40,13 +40,13 @@ async function handleSupabaseSubscription() {
 }
 
 // Exported handler for Vercel
-export default async function handler(req, res) {
-  try {
-    console.log("Initializing Supabase subscription...");
-    await handleSupabaseSubscription();
-    res.status(200).json({ message: "Supabase listener initialized." });
-  } catch (error) {
-    console.error("Error:", error);
-    res.status(500).json({ error: "Failed to initialize Supabase listener." });
-  }
-}
+// export default async function handler(req, res) {
+//   try {
+//     console.log("Initializing Supabase subscription...");
+//     await handleSupabaseSubscription();
+//     res.status(200).json({ message: "Supabase listener initialized." });
+//   } catch (error) {
+//     console.error("Error:", error);
+//     res.status(500).json({ error: "Failed to initialize Supabase listener." });
+//   }
+// }
