@@ -11,6 +11,7 @@ const supabase = createClient(
 
 async function handleSupabaseSubscription() {
   // Subscribe to changes in the 'contracts' table
+  console.log("starting subscription");
   const channel = supabase
     .channel("schema-db-changes")
     .on(
