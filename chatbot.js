@@ -8,7 +8,14 @@ const dotenv = require("dotenv");
 const fs = require("fs");
 const readline = require("readline");
 
+const { createClient } = require("@supabase/supabase-js");
+
 dotenv.config();
+
+const supabase = createClient(
+  "https://ewvzsofyvxcctuxxqibo.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV3dnpzb2Z5dnhjY3R1eHhxaWJvIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTY5NDUzMTMsImV4cCI6MjAxMjUyMTMxM30.VNQlQGxPThyLg4Ge2kD_n_VmF5FNLC13jVJOrT1PktY"
+);
 
 /**
  * Validates that required environment variables are set
@@ -133,7 +140,7 @@ async function initializeAgent() {
  */
 async function runAutonomousMode(agent, config, ipfs_url, interval = 10) {
   console.log("Starting autonomous mode...");
-
+  const comments = [];
   while (true) {
     try {
       const thought =
@@ -155,12 +162,28 @@ async function runAutonomousMode(agent, config, ipfs_url, interval = 10) {
       for await (const chunk of stream) {
         if ("agent" in chunk) {
           console.log(chunk.agent.messages[0].content);
+          if (chunk.agent.messages[0].content != "") {
+            comments.push(chunk.agent.messages[0].content);
+          }
         } else if ("tools" in chunk) {
           console.log(chunk.tools.messages[0].content);
+          if (chunk.tools.messages[0].content != "") {
+            comments.push(chunk.tools.messages[0].content);
+          }
         }
         console.log("-------------------");
       }
 
+      //log comments to supabase
+      const { error } = await supabase
+        .from("agentkit-comments")
+        .insert([{ comments }]);
+
+      if (error) {
+        console.error("Error logging comments:", error);
+      } else {
+        console.log("Comments logged successfully!");
+      }
       await new Promise((resolve) => setTimeout(resolve, interval * 1000));
     } catch (error) {
       if (error instanceof Error) {
@@ -168,6 +191,8 @@ async function runAutonomousMode(agent, config, ipfs_url, interval = 10) {
       }
       process.exit(1);
     }
+
+    process.exit(0);
   }
 }
 
