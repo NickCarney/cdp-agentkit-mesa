@@ -1,5 +1,6 @@
 const { createClient } = require("@supabase/supabase-js");
 const { initializeAgent, runAutonomousMode } = require("./chatbot.js");
+require("web-streams-polyfill");
 
 console.log("Initializing Supabase client...");
 
