@@ -1,12 +1,12 @@
 const { createClient } = require("@supabase/supabase-js");
-// const { initializeAgent, runAutonomousMode } = require("./chatbot.ts");
+const { initializeAgent, runAutonomousMode } = require("./chatbot.js");
 
 console.log("Initializing Supabase client...");
 
 // Replace with your actual Supabase URL and API key
 const supabase = createClient(
-  process.env.SUPABASE_URL, // Supabase URL
-  process.env.SUPABASE_KEY // Supabase anon Key
+  "https://ewvzsofyvxcctuxxqibo.supabase.co", // Supabase URL
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV3dnpzb2Z5dnhjY3R1eHhxaWJvIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTY5NDUzMTMsImV4cCI6MjAxMjUyMTMxM30.VNQlQGxPThyLg4Ge2kD_n_VmF5FNLC13jVJOrT1PktY" // Supabase anon Key
 );
 
 // Subscribe to changes in the 'contracts' table
@@ -19,10 +19,12 @@ const channel = supabase
       schema: "public", // Database schema (usually public)
       table: "contracts", // Specify the 'contracts' table here
     },
-    (payload) => {
-      console.log("New row added:", payload); // Log the payload
-      // Call chatbot logic or other functions here
-      // initializeAgent();
+    async (payload) => {
+      console.log("New row added:", payload);
+      const ipfs_url =
+        "https://mesa.mypinata.cloud/ipfs/" + payload.new.ipfs_cid;
+      const { agent, config } = await initializeAgent();
+      await runAutonomousMode(agent, config, ipfs_url);
     }
   )
   .subscribe((status) => {

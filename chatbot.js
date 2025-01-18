@@ -1,12 +1,12 @@
-import { CdpAgentkit } from "@coinbase/cdp-agentkit-core";
-import { CdpToolkit } from "@coinbase/cdp-langchain";
-import { HumanMessage } from "@langchain/core/messages";
-import { MemorySaver } from "@langchain/langgraph";
-import { createReactAgent } from "@langchain/langgraph/prebuilt";
-import { ChatOpenAI } from "@langchain/openai";
-import * as dotenv from "dotenv";
-import * as fs from "fs";
-import * as readline from "readline";
+const { CdpAgentkit } = require("@coinbase/cdp-agentkit-core");
+const { CdpToolkit } = require("@coinbase/cdp-langchain");
+const { HumanMessage } = require("@langchain/core/messages");
+const { MemorySaver } = require("@langchain/langgraph");
+const { createReactAgent } = require("@langchain/langgraph/prebuilt");
+const { ChatOpenAI } = require("@langchain/openai");
+const dotenv = require("dotenv");
+const fs = require("fs");
+const readline = require("readline");
 
 dotenv.config();
 
@@ -16,8 +16,8 @@ dotenv.config();
  * @throws {Error} - If required environment variables are missing
  * @returns {void}
  */
-function validateEnvironment(): void {
-  const missingVars: string[] = [];
+function validateEnvironment() {
+  const missingVars = [];
 
   // Check required variables
   const requiredVars = [
@@ -60,6 +60,7 @@ const WALLET_DATA_FILE = "wallet_data.txt";
  * @returns Agent executor and config
  */
 async function initializeAgent() {
+  console.log("Initializing agent...");
   try {
     // Initialize LLM with xAI configuration
     const llm = new ChatOpenAI({
@@ -67,7 +68,7 @@ async function initializeAgent() {
       apiKey: process.env.OPENAI_API_KEY,
     });
 
-    let walletDataStr: string | null = null;
+    let walletDataStr = null;
 
     //so a new wallet is created each time
     if (fs.existsSync(WALLET_DATA_FILE)) {
@@ -130,14 +131,21 @@ async function initializeAgent() {
  * @param config - Agent configuration
  * @param interval - Time interval between actions in seconds
  */
-async function runAutonomousMode(agent: any, config: any, interval = 10) {
+async function runAutonomousMode(agent, config, ipfs_url, interval = 10) {
   console.log("Starting autonomous mode...");
 
   while (true) {
     try {
       const thought =
-        "Be creative and do something interesting on the blockchain. " +
-        "Choose an action or set of actions and execute it that highlights your abilities.";
+        "Please display the wallet details. Add funds from faucet until you can get a basename and NFT deployed." +
+        "The Name of the NFT collection should be 'MesaWallet' with 3 random characters appended afterwards." +
+        "The Symbol of the NFT collection should be 'MW' with the same 3 random characters appended afterwards." +
+        "The Base URI is " +
+        ipfs_url +
+        "The image for the NFT is https://mesa.mypinata.cloud/ipfs/bafkreifesm2kzzlgzamioix4i5yt3mwvpxqh5vaq6k4b5lzmbk4yuaaiwu" +
+        "Give the wallet a random basename with under 7 characters. Then deploy a NFT from an ipfs PDF url. " +
+        "Once this NFT is deployed, please mint it and return the transactional hash." +
+        "After these steps, you are done, thank you!";
 
       const stream = await agent.stream(
         { messages: [new HumanMessage(thought)] },
@@ -169,7 +177,7 @@ async function runAutonomousMode(agent: any, config: any, interval = 10) {
  * @param agent - The agent executor
  * @param config - Agent configuration
  */
-async function runChatMode(agent: any, config: any) {
+async function runChatMode(agent, config) {
   console.log("Starting chat mode... Type 'exit' to end.");
 
   const rl = readline.createInterface({
@@ -177,7 +185,7 @@ async function runChatMode(agent: any, config: any) {
     output: process.stdout,
   });
 
-  const question = (prompt: string): Promise<string> =>
+  const question = (prompt) =>
     new Promise((resolve) => rl.question(prompt, resolve));
 
   try {
@@ -217,13 +225,13 @@ async function runChatMode(agent: any, config: any) {
  *
  * @returns Selected mode
  */
-async function chooseMode(): Promise<"chat" | "auto"> {
+async function chooseMode() {
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,
   });
 
-  const question = (prompt: string): Promise<string> =>
+  const question = (prompt) =>
     new Promise((resolve) => rl.question(prompt, resolve));
 
   while (true) {
